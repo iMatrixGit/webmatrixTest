@@ -1,0 +1,52 @@
+﻿@{
+    Page.Title = "Movies List Page";
+    Page.PageNavLinkName = "movies-table";
+    
+    Layout = "~/_Layout.cshtml";   
+
+    var db = Database.Open("WebPagesMovies");
+    var selectQueryString = "SELECT * FROM Movies";  
+    var selectMoviesGenreString = "SELECT * FROM Movies WHERE Genre = @0";
+
+    var selectedData = db.Query(selectQueryString);
+    var selectedDramaMoviesData = db.Query(selectMoviesGenreString, "Romance");
+    var moviesCount = selectedData.Count();
+    var dramaMoviesCount = selectedDramaMoviesData.Count();    
+    var grid = new WebGrid(selectedData, rowsPerPage: 5);   
+}
+<table>
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Genre</th>
+            <th>Year</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(var row in @selectedData){
+            <tr>
+                <td>@row.Title</td>
+                <td>@row.Genre</td>
+                <td>@row.Year</td>
+            </tr>
+        }
+    </tbody>
+    </table>
+
+    @grid.GetHtml(columns: grid.Columns(
+        grid.Column("Title"),
+        grid.Column("Genre"),
+        grid.Column("Year")
+))
+<div>
+    Page Count: <strong>@grid.PageCount</strong>
+</div>
+<div>Movies count: 
+    @moviesCount
+</div>
+<div>
+    Drama movies count:
+    @dramaMoviesCount
+</div>
+
+

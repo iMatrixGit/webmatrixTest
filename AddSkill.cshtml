@@ -1,0 +1,69 @@
+﻿@{
+    Page.Title = "Add Skills";
+    Layout = "~/_Layout.cshtml";
+
+    // Validation 
+    
+    Validation.RequireField("employee", "You have to select employee"); 
+    Validation.RequireField("skill", "You have to select skill"); 
+
+    // Database
+
+    var db = Database.Open("WebPagesMovies");
+
+    var empList = db.Query("SELECT e.ID, e.FirstName, e.LastName, d.Name FROM Employee AS e JOIN Department AS d ON e.DepartmentID = d.ID ORDER BY e.FirstName");
+    var skillList = db.Query("SELECT * FROM Skill");
+    var empSkillList = db.Query("SELECT e.FirstName AS [First name], e.LastName AS [Last name], s.Name AS Skills FROM EmployeeSkill AS es JOIN Employee AS e ON es.EmployeeID = e.ID JOIN Skill AS s ON es.SkillID = s.ID ");
+
+    var empID = "";
+    var skillID = "";
+
+    var empSkillsGrid = new WebGrid(empSkillList);
+
+    if(IsPost && Validation.IsValid()) {
+
+        empID = Request.Form["employee"];
+        skillID = Request.Form["skill"];
+
+        db.Execute("INSERT INTO EmployeeSkill (EmployeeID, SkillID) VALUES (@0, @1)", empID, skillID);
+        
+        Response.Redirect("~/Employees.cshtml");
+    }
+}
+
+@Html.ValidationSummary()
+
+@if(IsPost && Validation.IsValid()) {
+    <ul>
+        <li>@empID</li>
+        <li>@skillID</li> 
+    </ul>
+}
+
+<h1>Add Skill to employee</h1>
+
+<form id="add_emp_skill" method="post">
+    <select name="employee">
+        <option selected="selected" value="">-- Chose Employee -- </option>
+        @foreach(var row in empList){
+            <option value="@row.ID">@row.FirstName @row.LastName - @row.Name</option>
+        }
+    </select>
+    @Html.ValidationMessage("employee")
+    <select name="skill">
+        <option selected="selected" value="">-- Chose Skill --</option>
+        @foreach(var row in skillList){
+            <option value="@row.ID">@row.Name</option>
+        }
+    </select>
+    @Html.ValidationMessage("skill")
+    <input type="submit" value="Add Skill"/>
+</form>
+
+<h2>Employees with skills</h2>
+    @empSkillsGrid.GetHtml(tableStyle: "table table-striped" ,columns: empSkillsGrid.Columns(
+        empSkillsGrid.Column("First Name"),
+        empSkillsGrid.Column("Last Name"),
+        empSkillsGrid.Column("Skills")
+    ))
+

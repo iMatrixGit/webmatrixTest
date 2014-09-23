@@ -1,0 +1,81 @@
+﻿@{
+    
+    // -- Page Details --
+
+    Page.Title = "Employees";
+    Page.PageNavLinkName = "employees";
+    Layout = "~/_Layout.cshtml";
+
+    // -- Variables -- 
+
+    var empFirstName = ""; 
+    var empLastName = ""; 
+    var empDepart = "";
+
+    // -- Database Details --
+
+    var db = Database.Open("WebPagesMovies");
+
+    var employeeList = db.Query("SELECT "+
+                                    "e.FirstName AS [First Name], "+
+                                    "e.LastName AS [Last Name], "+ 
+                                    "d.Name AS Department, "+
+                                    "d.Location "+ 
+                                "FROM Employee AS e "+
+                                "JOIN Department AS d "+ 
+                                "ON e.DepartmentID = d.ID");
+
+    var employeeGrid = new WebGrid(employeeList, rowsPerPage: 25);
+
+    // -- Validation -- 
+
+    Validation.RequireField("firstName", "You must enter first name");
+    Validation.RequireField("lastName", "You must enter last name");
+    //Validation.RequireField("department", "You must enter department");
+
+    // -- Add employee --
+
+    if(IsPost && Validation.IsValid()) { 
+        empFirstName = Request.Form["firstName"];
+        empLastName = Request.Form["lastName"];
+        empDepart = Request.Form["department"];
+
+        db.Execute("INSERT INTO Employee (FirstName, LastName, DepartmentID) VALUES (@0, @1, @2)", empFirstName, empLastName, empDepart);
+        
+        Session["firstName"] = empFirstName;
+        Session["lastName"] = empLastName;
+        Session["empID"] = empDepart;
+
+        Response.Redirect("~/SuccessAddEmployee.cshtml");
+    }
+}
+
+<h1>Employees</h1>
+
+@Html.ValidationSummary()
+
+<h2>Add Employee</h2>
+<form method="post">
+    <input type="text" name="firstName" placeholder="First name"/>
+    @Html.ValidationMessage("firstName")
+    <input type="text" name="lastName" placeholder="Last name"/>
+    @Html.ValidationMessage("lastName")
+    <select name="department">
+        <option value="1">Development</option>
+        <option value="2">Management</option>
+        <option value="3">Marketing</option>
+        <option value="4">Production</option>
+    </select>
+    <input type="submit" value="Add Employee"/>
+</form>
+
+<h2>Employees</h2>
+<a href="@Href("~/AddSkill.cshtml")">Add skill</a>
+    @employeeGrid.GetHtml(tableStyle: "table table-striped" ,columns: employeeGrid.Columns(
+        employeeGrid.Column("First Name"),
+        employeeGrid.Column("Last Name"),
+        employeeGrid.Column("Department"),
+        employeeGrid.Column("Location")
+    ))
+
+

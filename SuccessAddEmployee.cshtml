@@ -1,0 +1,27 @@
+﻿@{
+    // -- Page Details --
+
+    Page.Title = "Employees";
+    Page.PageNavLinkName = "employees";
+    Layout = "~/_Layout.cshtml";
+
+    //  -- Variables -- 
+
+    var empFirstName = Session["firstName"];
+    var empLastName = Session["lastName"];
+    var empDepID = Session["empID"];
+    
+    // -- Database Details -- 
+
+    var db = Database.Open("WebPagesMovies");
+
+    var empDepart = db.QuerySingle("SELECT Name FROM Department WHERE ID = @0", empDepID);
+}
+
+<h1>Successfully added employee:</h1>
+<ul class="validation-summary-success">
+    <li>@empFirstName</li>
+    <li>@empLastName</li>
+    <li>@empDepart.Name</li>
+</ul>
+

@@ -1,0 +1,21 @@
+﻿<!DOCTYPE html>
+<html>
+  <head>
+    <title>@Page.Title</title>
+      <meta name="description" content="@Page.Description">
+    <link href="~/Styles/Style.css" rel="stylesheet" type="text/css" />
+  </head>
+  <body>
+    <div id="container">
+        @RenderPage("~/_header.cshtml")
+        <div id="main">
+            <div id="user_nav">
+                @RenderSection("usernav", required: false)
+            </div>
+            @RenderBody()
+        </div>
+        @RenderPage("~/_footer.cshtml")
+    </div>
+      @RenderSection("PageScripts", required: false)
+  </body>
+</html>

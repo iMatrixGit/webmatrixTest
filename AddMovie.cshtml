@@ -1,0 +1,43 @@
+﻿@{
+    Page.Title = "Add Movie"; 
+    Page.PageNavLinkName = "add-movie";   
+
+    Layout = "~/_Layout.cshtml";
+    
+    Validation.RequireField("title", "You must enter a title");
+    Validation.RequireField("genre", "Genre is required");
+    Validation.RequireField("year", "You haven't entered a year");    
+
+    var title = "";
+    var genre = "";
+    var year = "";
+
+    if(IsPost && Validation.IsValid()){
+        title = Request.Form["title"];
+        genre = Request.Form["genre"];
+        year = Request.Form["year"];
+
+        var db = Database.Open("WebPagesMovies");
+        var insertCommand = "INSERT INTO Movies (Title, Genre, Year) Values(@0, @1, @2)";
+        db.Execute(insertCommand, title, genre, year);
+        Response.Redirect("~/Movies");
+    }
+}
+
+@Html.ValidationSummary()
+<h1>Add a movie</h1>
+<form method="post">
+    <label for="title">Title</label><br/>
+    <input type="text" name="title" value="@Request.Form["title"]" /><br/>
+    @Html.ValidationMessage("title")<br/>
+
+    <label for="genre">Genre</label><br/>
+    <input type="text" name="genre" value="@Request.Form["genre"]" /><br/>
+    @Html.ValidationMessage("genre")<br/>
+
+    <label for="year">Year</label><br/>
+    <input type="text" name="year" value="@Request.Form["year"]" /><br/>
+    @Html.ValidationMessage("year")<br/>
+
+    <input type="submit" value="Add movie" />
+</form>
